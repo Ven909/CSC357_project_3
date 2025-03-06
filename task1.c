@@ -7,14 +7,14 @@
 
 #define MAX_LINE 256
 
-void process_download(const char *filename, const char *url, const char *timeout) {
+void initiate_download(const char *filename, const char *url, const char *timeout) {
     char command[MAX_LINE];
     if (timeout) {
         snprintf(command, sizeof(command), "curl -m %s -o %s -s %s", timeout, filename, url);
     } else {
         snprintf(command, sizeof(command), "curl -o %s -s %s", filename, url);
     }
-    execlp("sh", "sh", "-c", command, NULL); // what is happening here?
+    execlp("sh", "sh", "-c", command, NULL);
     perror("execlp failed");
     exit(1);
 }
@@ -39,21 +39,34 @@ int main(int argc, char *argv[]) {
 
     char line[MAX_LINE];
     int line_number = 0;
-    pid_t pids[max_processes];
     int active_processes = 0;
 
     while (fgets(line, sizeof(line), file)) {
         line_number++;
-        char output_filename[MAX_LINE], url[MAX_LINE], timeout[MAX_LINE];
-        int num_fields = sscanf(line, "%s %s %s", output_filename, url, timeout); // unknown function used: sscanf
-        char *timeout_arg = (num_fields == 3) ? timeout : NULL;
 
+        // Parse line
+        char output_filename[MAX_LINE], url[MAX_LINE], timeout[MAX_LINE];
+        char *timeout_arg = NULL;
+        int num_fields = sscanf(line, "%s %s %s", output_filename, url, timeout); // unknown function used here
+
+        if (num_fields < 2) 
+        {
+            printf("Skip bad format line #%d\n", line_number);
+            continue;
+        }
+        if (num_fields == 3) 
+        {
+            timeout_arg = timeout;
+        }
+
+        // Wait for available process slots
         if (active_processes >= max_processes) {
             pid_t completed_pid = wait(NULL);
             active_processes--;
             printf("Process %d completed.\n", completed_pid);
         }
 
+        // Fork a new process
         pid_t pid = fork();
         if (pid < 0) {
             perror("Fork failed");
@@ -63,13 +76,14 @@ int main(int argc, char *argv[]) {
 
         if (pid == 0) {  // Child process
             printf("Process %d processing line #%d\n", getpid(), line_number);
-            process_download(output_filename, url, timeout_arg);
+            initiate_download(output_filename, url, timeout_arg);
         } else {  // Parent process
-            pids[active_processes++] = pid;
+            active_processes++;
         }
     }
     fclose(file);
 
+    // Wait for remaining processes
     while (active_processes > 0) {
         pid_t completed_pid = wait(NULL);
         printf("Process %d completed.\n", completed_pid);
