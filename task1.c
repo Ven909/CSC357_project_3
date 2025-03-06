@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    int max_processes = atoi(argv[2]);
+    int max_processes = atoi(argv[2]); // unknown function used here
     if (max_processes <= 0) {
         printf("Invalid max_processes value. Must be a positive integer.\n");
         return 1;
