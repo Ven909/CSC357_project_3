@@ -48,6 +48,12 @@ int main(int argc, char *argv[])
     {
         line_number++;
 
+        size_t len = strlen(line);
+        if (len > 0 && line[len - 1] == '\n') 
+        {
+            line[len - 1] = '\0';
+        }
+
         // Tokenize line using strtok()
         char *output_filename = strtok(line, " ");
         char *url = strtok(NULL, " ");
