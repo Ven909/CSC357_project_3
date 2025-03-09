@@ -46,10 +46,11 @@ int main(int argc, char *argv[])
     {
         line_number++;
 
+        // Remove newline character from line
         size_t len = strlen(line);
         if (len > 0 && line[len - 1] == '\n') 
         {
-            line[len - 1] = '\0';
+            line[len - 1] = '\0';   // Replace newline with null terminator
         }
 
         // Tokenize line using strtok()
@@ -57,6 +58,7 @@ int main(int argc, char *argv[])
         char *url = strtok(NULL, " ");
         char *timeout = strtok(NULL, " ");  // Optional timeout
 
+        // Check if output_filename and url are valid
         if (!output_filename || !url) {
             printf("Skipping bad format line #%d\n", line_number);
             continue;
@@ -72,24 +74,24 @@ int main(int argc, char *argv[])
         // Fork a new process
         pid_t pid = fork();
         if (pid < 0) {
-            perror("Fork failed");
-            fclose(file);
+            perror("Fork failed");  // Print error if fork fails
+            fclose(file);       // Close file
             return 1;
         }
 
         if (pid == 0) {  // Child process
-            printf("Process %d processing line #%d\n", getpid(), line_number);
+            printf("Process %d processing line #%d\n", getpid(), line_number);  
             initiate_download(output_filename, url, timeout);   // Execute download command
         } else {  // Parent process
             active_processes++; // Increment active process count
         }
     }
-    fclose(file);
+    fclose(file);   // Close file
 
     // Wait for remaining processes
     while (active_processes > 0) {
         pid_t completed_pid = wait(NULL);   // Wait for any child process to complete
-        printf("Process %d completed.\n", completed_pid);
+        printf("Process %d completed.\n", completed_pid);   
         active_processes--;                // Decrement active process count
     }
     return 0;
