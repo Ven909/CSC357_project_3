@@ -9,4 +9,4 @@ $(MAIN) : $(SRC)
 	$(CC) $(CFLAGS) -g -o $(MAIN) $(SRC)
 
 clean :
-	rm *.o $(MAIN) core
+	rm -f $(MAIN)
