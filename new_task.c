@@ -10,13 +10,11 @@
 // Function to initiate download using curl command
 void initiate_download(const char *filename, const char *url, const char *timeout) 
 {
-    char command[MAX_LINE]; // Command buffer
     if (timeout) {
-        snprintf(command, sizeof(command), "curl -m %s -o %s -s %s", timeout, filename, url);   // -m option for timeout
+        execlp("curl", "curl", "-m", timeout, "-o", filename, "-s", url, NULL);
     } else {
-        snprintf(command, sizeof(command), "curl -o %s -s %s", filename, url);  // No timeout
+        execlp("curl", "curl", "-o", filename, "-s", url, NULL);
     }
-    execlp("sh", "sh", "-c", command, NULL);    // Execute command
     perror("execlp failed");    // Print error if execlp fails
     exit(1);
 }
