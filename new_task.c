@@ -11,9 +11,9 @@
 void initiate_download(const char *filename, const char *url, const char *timeout) 
 {
     if (timeout) {
-        execlp("curl", "curl", "-m", timeout, "-o", filename, "-s", url, NULL);
+        execlp("curl", "curl", "-m", timeout, "-o", filename, "-s", url, NULL); // Execute curl command with timeout
     } else {
-        execlp("curl", "curl", "-o", filename, "-s", url, NULL);
+        execlp("curl", "curl", "-o", filename, "-s", url, NULL);    // Execute curl command without timeout
     }
     perror("execlp failed");    // Print error if execlp fails
     exit(1);
@@ -44,18 +44,19 @@ int main(int argc, char *argv[])
     // Read file line by line
     while (fgets(line, sizeof(line), file)) 
     {
-        line_number++;
+        line_number++;  // Increment line number
 
         // Remove newline character from line
         size_t len = strlen(line);
+        // Check if line is not empty
         if (len > 0 && line[len - 1] == '\n') 
         {
             line[len - 1] = '\0';   // Replace newline with null terminator
         }
 
         // Tokenize line using strtok()
-        char *output_filename = strtok(line, " ");
-        char *url = strtok(NULL, " ");
+        char *output_filename = strtok(line, " "); 
+        char *url = strtok(NULL, " ");  
         char *timeout = strtok(NULL, " ");  // Optional timeout
 
         // Check if output_filename and url are valid
@@ -89,7 +90,7 @@ int main(int argc, char *argv[])
     fclose(file);   // Close file
 
     // Wait for remaining processes
-    while (active_processes > 0) {
+    while (active_processes > 0) {  
         pid_t completed_pid = wait(NULL);   // Wait for any child process to complete
         printf("Process %d completed.\n", completed_pid);   
         active_processes--;                // Decrement active process count
