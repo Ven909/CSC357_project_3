@@ -29,6 +29,13 @@ int main(int argc, char *argv[])
 
     char *endptr;
     long max_processes = strtol(argv[2], &endptr, 10); // Convert string to long
+    
+    // Check if max_processes is valid
+    if (*endptr != '\0' || max_processes <= 0) 
+    { 
+        printf("Invalid max_processes value\n"); // Print error if max_processes is invalid
+        return 1;
+    }
 
     // Check if file is valid
     FILE *file = fopen(argv[1], "r");
