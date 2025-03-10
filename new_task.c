@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
         if (active_processes >= max_processes) {
             pid_t completed_pid = wait(NULL);   // Wait for any child process to complete
             active_processes--;                 // Decrement active process count
-            printf("Process %d completed processing line #%d\n", completed_pid, line_number);
+            printf("Process %d completed.\n", completed_pid);
         }
 
         // Fork a new process
@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
     // Wait for remaining processes
     while (active_processes > 0) {  
         pid_t completed_pid = wait(NULL);   // Wait for any child process to complete
-        printf("Process %d completed processing line #%d\n", completed_pid, line_number);   
+        printf("Process %d completed.\n", completed_pid);   
         active_processes--;                // Decrement active process count
     }
     return 0;
