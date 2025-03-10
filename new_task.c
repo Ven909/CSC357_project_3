@@ -49,6 +49,12 @@ int main(int argc, char *argv[])
     pid_t processes[max_processes]; // Array to store process IDs
     int process_lines[max_processes];   // Array to store line numbers
 
+    //initialize the process array
+    for (int i = 0; i < max_processes; i++) 
+    {
+        processes[i] = 0;   //initialize all the process ID to 0
+    }
+
     // Read file line by line
     while (fgets(line, sizeof(line), file)) 
     {
@@ -76,11 +82,11 @@ int main(int argc, char *argv[])
         if (active_processes >= max_processes) {
             pid_t completed_pid = wait(NULL); // Wait for any child process to complete
             active_processes--; // Decrement active process count
-            // Print completion message
+            // Find the completed process and print the line number
             for (int i = 0; i < max_processes; i++) {
-                if (processes[i] == completed_pid) {    // Check if process ID matches
-                    printf("Process %d completed processing line #%d\n", completed_pid, process_lines[i]);
-                    processes[i] = 0;   // Reset process ID
+                if (processes[i] == completed_pid) {    //find the completed process
+                    printf("Process %d completed processing line #%d\n", completed_pid, process_lines[i]); //print completed process and line number
+                    processes[i] = 0;   //reset the process ID
                     break;
                 }
             }
@@ -95,11 +101,21 @@ int main(int argc, char *argv[])
         }
 
         if (pid == 0) { // Child process
-            printf("Process %d processing line #%d\n", getpid(), line_number);
+            printf("Process %d processing line #%d\n", getpid(), line_number);  //print the process and line number
             initiate_download(output_filename, url, timeout); // Execute download command
-        } else { // Parent process
-            processes[active_processes] = pid;  // Store process ID
-            process_lines[active_processes] = line_number;  // Store line number
+        } 
+        else // Parent process
+        { 
+            // Store the process ID and line number
+            for(int i = 0; i < max_processes; i++)
+            {
+                if(processes[i] == 0)   //find the empty slot
+                {  
+                    processes[i] = pid; //store the process ID
+                    process_lines[i] = line_number; //store the line number
+                    break;
+                }
+            }
             active_processes++; // Increment active process count
         }
     }
@@ -109,15 +125,18 @@ int main(int argc, char *argv[])
     while (active_processes > 0) 
     {
         pid_t completed_pid = wait(NULL); // Wait for any child process to complete
-        // Print completion message
-        for (int i = 0; i < max_processes; i++) {
-            if (processes[i] == completed_pid) {    // Check if process ID matches
-                printf("Process %d completed processing line #%d\n", completed_pid, process_lines[i]);
-                processes[i] = 0;   // Reset process ID
+        active_processes--; // Decrement active process count
+        
+        // Find the completed process and print the line number
+        for (int i = 0; i < max_processes; i++) 
+        {
+            if (processes[i] == completed_pid)  //find the completed process
+            {
+                printf("Process %d completed processing line #%d\n", completed_pid, process_lines[i]); //print completed process and line number
+                processes[i] = 0;   //reset the process ID
                 break;
             }
         }
-        active_processes--; // Decrement active process count
     }
     return 0;
 }
